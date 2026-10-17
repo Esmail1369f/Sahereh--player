@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090909"><title>ساهره پلیر</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar"><div class="brand-mark">♫</div><div><div class="brand-title">ساهره پلیر</div><div class="brand-sub">موسیقی، با حال‌وهوای طلایی</div></div><button id="themeBtn" class="icon-btn">◐</button></header>
+<main>
+<section id="home" class="page active">
+<div class="hero"><div class="gramophone"><div class="horn"></div><div class="record" id="record"><div class="record-center">♫</div></div><div class="gram-base"></div></div><p class="eyebrow">پخش‌کننده موسیقی شما</p><h1 id="heroTitle">آهنگت رو انتخاب کن</h1><p id="heroArtist" class="muted">فایل‌های موسیقی گوشی را اضافه کن</p></div>
+<section class="player-card"><div class="cover"><div class="cover-ring">♫</div><span>ساهره پلیر</span></div><div class="track-meta"><strong id="trackTitle">هنوز آهنگی انتخاب نشده</strong><span id="trackArtist">نام خواننده</span></div>
+<div class="timeline"><span id="elapsed">۰۰:۰۰</span><input id="seek" type="range" min="0" max="1000" value="0"><span id="duration">۰۰:۰۰</span></div>
+<div class="controls"><button id="shuffleBtn" class="mini-btn">🔀</button><button id="prevBtn" class="control-btn">⏮</button><button id="playBtn" class="play-btn">▶</button><button id="nextBtn" class="control-btn">⏭</button><button id="repeatBtn" class="mini-btn">🔁</button></div>
+<div class="extra-controls"><button id="favBtn" class="pill">♡ موردعلاقه</button><button id="timerBtn" class="pill">⏱ زمان‌سنج خواب</button><label class="volume">صدا <input id="volume" type="range" min="0" max="1" step=".01" value=".8"></label></div><canvas id="visualizer" height="52"></canvas></section>
+<div class="section-heading"><h2>آهنگ‌های اخیر</h2><button id="addMusicBtn" class="gold-btn">＋ افزودن آهنگ</button></div><input id="filePicker" type="file" accept="audio/*" multiple hidden><div id="recentList" class="song-list empty-state">هنوز آهنگی اضافه نشده است.</div>
+</section>
+<section id="songs" class="page"><div class="section-heading"><h2>همه آهنگ‌ها</h2><button id="addMusicBtn2" class="gold-btn">＋ افزودن</button></div><input id="searchInput" class="search" placeholder="جست‌وجوی آهنگ یا خواننده…"><div class="sort-row"><span>مرتب‌سازی:</span><select id="sortSelect"><option value="added">تازه اضافه‌شده</option><option value="title">نام آهنگ</option><option value="artist">نام خواننده</option></select></div><div id="allList" class="song-list empty-state">برای شروع، آهنگ اضافه کن.</div></section>
+<section id="favorites" class="page"><h2>موردعلاقه‌ها</h2><div id="favList" class="song-list empty-state">هنوز آهنگ موردعلاقه‌ای نداری.</div></section>
+<section id="settings" class="page"><h2>تنظیمات</h2><div class="setting-card"><label>پوسته برنامه <select id="themeSelect"><option value="gold">مشکی و طلایی</option><option value="blue">مشکی و آبی</option><option value="purple">مشکی و بنفش</option></select></label><label>نمای فهرست <select id="listView"><option value="compact">فهرست جمع‌وجور</option><option value="cards">کارت‌های بزرگ‌تر</option></select></label><label class="check-row"><input id="autoNext" type="checkbox" checked> پس از پایان آهنگ، آهنگ بعدی پخش شود</label><label class="check-row"><input id="lowEffects" type="checkbox" checked> کاهش جلوه‌ها هنگام کم بودن باتری</label><p class="note">این نسخه نمونهٔ اولیه است؛ اسکن خودکار پوشه‌ها، اکولایزر واقعی، کنترل صفحهٔ قفل و پخش پس‌زمینهٔ کامل هنوز پیاده‌سازی نشده‌اند.</p></div></section>
+</main>
+<nav class="bottom-nav"><button class="nav-item selected" data-page="home"><span>⌂</span>خانه</button><button class="nav-item" data-page="songs"><span>♫</span>آهنگ‌ها</button><button class="nav-item" data-page="favorites"><span>♡</span>موردعلاقه‌ها</button><button class="nav-item" data-page="settings"><span>⚙</span>تنظیمات</button></nav>
+</div><audio id="audio" preload="metadata"></audio><script src="app.js"></script>
+</body></html>
