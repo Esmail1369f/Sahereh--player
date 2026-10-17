@@ -201,3 +201,17 @@ body:has(.mini-player.shown) main{padding-bottom:95px}
 .song-cover span{position:absolute;inset:0;display:grid;place-items:center;color:#fff0b8;text-shadow:0 2px 8px #000;font-size:23px;background:linear-gradient(145deg,#0002,#0007)}
 .song-cover{border-color:#ad8a42!important;box-shadow:0 3px 10px #0008}
 .mini-disc{position:relative}.mini-disc img{transition:opacity .2s}
+
+/* Album artwork: true circular record, no layered fake cover. */
+.np-artwork{border-radius:50%!important;overflow:hidden;transform:none!important;background:#080808;border:2px solid var(--gold);box-shadow:0 0 0 5px #18140c,0 0 0 6px #80632e,0 18px 42px #000b!important;animation:none!important}
+.track-cover-image{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;z-index:1;filter:none!important;transition:opacity .25s}
+.np-artwork.spinning{animation:spin 5s linear infinite!important}
+.np-art-ring{position:absolute;inset:7%;width:86%;height:86%;border-radius:50%;z-index:2;pointer-events:none;border:1px solid #f2d68b66;box-shadow:0 0 0 8px #d2b36c0b,0 0 0 18px #d2b36c08}
+.np-art-disc,.np-cover-shade,.np-art-label{display:none!important}
+.mini-disc{border-radius:50%!important;overflow:hidden}
+.mini-disc img{border-radius:50%;object-fit:cover}
+.song-cover{border-radius:50%!important;flex-basis:46px!important;width:46px!important;height:46px!important;overflow:hidden!important}
+.song-cover img{border-radius:50%;object-fit:cover}
+.song-cover span{display:none!important}
+.song-row.current .song-cover img{animation:spin 5s linear infinite}
+.low-effects .np-artwork.spinning,.low-effects .song-row.current .song-cover img{animation-duration:9s!important}
