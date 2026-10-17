@@ -1,0 +1,32 @@
+package ir.fatahi.saherehplayer;
+
+import android.app.*;
+import android.content.*;
+import android.media.*;
+import android.media.session.*;
+import android.net.Uri;
+import android.os.*;
+import android.provider.Settings;
+import android.support.v4.media.session.*;
+import android.graphics.BitmapFactory;
+import java.util.*;
+
+public class MusicService extends Service {
+    public static final String ACTION_PLAY="sp.PLAY", ACTION_TOGGLE="sp.TOGGLE", ACTION_NEXT="sp.NEXT", ACTION_PREV="sp.PREV", ACTION_STOP="sp.STOP", ACTION_SEEK="sp.SEEK", ACTION_VOLUME="sp.VOLUME", ACTION_TIMER="sp.TIMER";
+    private MediaPlayer player; private MediaSession session; private String title="ساهره پلیر", artist="فایل محلی", uri=""; private Handler handler=new Handler(Looper.getMainLooper()); private Runnable timerRunnable; private float volume=0.8f; private int positionBeforePause=0;
+    @Override public void onCreate(){super.onCreate();createChannel();session=new MediaSession(this,"SaherehPlayer");session.setCallback(new MediaSession.Callback(){@Override public void onPlay(){resume();}@Override public void onPause(){pause();}@Override public void onSkipToNext(){next();}@Override public void onSkipToPrevious(){previous();}@Override public void onSeekTo(long p){seek((int)p);}});session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS|MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);session.setActive(true);}
+    @Override public int onStartCommand(Intent i,int flags,int startId){if(i==null)return START_STICKY;String a=i.getAction();if(ACTION_PLAY.equals(a)){uri=i.getStringExtra("uri");title=i.getStringExtra("title");artist=i.getStringExtra("artist");playUri();}else if(ACTION_TOGGLE.equals(a)){if(player!=null&&player.isPlaying())pause();else resume();}else if(ACTION_NEXT.equals(a))next();else if(ACTION_PREV.equals(a))previous();else if(ACTION_STOP.equals(a)){pause();stopForeground(false);}else if(ACTION_SEEK.equals(a))seek(i.getIntExtra("position",0));else if(ACTION_VOLUME.equals(a)){volume=i.getFloatExtra("volume",.8f);if(player!=null)player.setVolume(volume,volume);}else if(ACTION_TIMER.equals(a)){if(timerRunnable!=null)handler.removeCallbacks(timerRunnable);int m=i.getIntExtra("minutes",0);if(m>0){timerRunnable=()->{pause();stopForeground(false);};handler.postDelayed(timerRunnable,m*60000L);}}return START_STICKY;}
+    private void playUri(){try{if(player!=null){player.reset();player.release();}player=new MediaPlayer();player.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());player.setDataSource(this,Uri.parse(uri));player.setVolume(volume,volume);player.setOnPreparedListener(mp->{mp.start();updateSession();updateNotification();});player.setOnCompletionListener(mp->{next();});player.setOnErrorListener((mp,w,e)->{stopForeground(false);return true;});player.prepareAsync();startForeground(41,notification());}catch(Exception e){stopForeground(true);}}
+    private void resume(){if(player!=null){if(!player.isPlaying())player.start();updateSession();updateNotification();}}
+    private void pause(){if(player!=null&&player.isPlaying()){player.pause();positionBeforePause=player.getCurrentPosition();}updateSession();updateNotification();}
+    private void seek(int p){if(player!=null)try{player.seekTo(Math.max(0,Math.min(p,player.getDuration())));}catch(Exception ignored){}}
+    private void next(){/* The UI owns the playlist; service stays available for notification transport. */ if(player!=null){player.seekTo(0);player.start();}}
+    private void previous(){if(player!=null){if(player.getCurrentPosition()>3000)player.seekTo(0);else player.seekTo(0);}}
+    private void updateSession(){if(session==null)return;long actions=PlaybackState.ACTION_PLAY|PlaybackState.ACTION_PAUSE|PlaybackState.ACTION_PLAY_PAUSE|PlaybackState.ACTION_SKIP_TO_NEXT|PlaybackState.ACTION_SKIP_TO_PREVIOUS|PlaybackState.ACTION_SEEK_TO;int st=player!=null&&player.isPlaying()?PlaybackState.STATE_PLAYING:PlaybackState.STATE_PAUSED;long pos=0;try{pos=player.getCurrentPosition();}catch(Exception ignored){}session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,title).putString(MediaMetadata.METADATA_KEY_ARTIST,artist).putLong(MediaMetadata.METADATA_KEY_DURATION,player==null?0:Math.max(0,player.getDuration())).build());session.setPlaybackState(new PlaybackState.Builder().setActions(actions).setState(st,pos,player!=null&&player.isPlaying()?1f:0f).build());}
+    private void createChannel(){if(Build.VERSION.SDK_INT>=26){NotificationChannel c=new NotificationChannel("sahereh_music","پخش موسیقی",NotificationManager.IMPORTANCE_LOW);c.setDescription("کنترل پخش ساهره پلیر");((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(c);}}
+    private PendingIntent action(String a,int id){Intent i=new Intent(this,MusicActionReceiver.class).setAction(a);return PendingIntent.getBroadcast(this,id,i,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);}
+    private Notification notification(){Intent open=new Intent(this,MainActivity.class);PendingIntent pi=PendingIntent.getActivity(this,1,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,"sahereh_music"):new Notification.Builder(this);b.setContentTitle(title).setContentText(artist+" • ساهره پلیر").setSmallIcon(android.R.drawable.ic_media_play).setContentIntent(pi).setOngoing(player!=null&&player.isPlaying()).addAction(android.R.drawable.ic_media_previous,"قبلی",action(ACTION_PREV,2)).addAction(player!=null&&player.isPlaying()?android.R.drawable.ic_media_pause:android.R.drawable.ic_media_play,"پخش/مکث",action(ACTION_TOGGLE,3)).addAction(android.R.drawable.ic_media_next,"بعدی",action(ACTION_NEXT,4));if(Build.VERSION.SDK_INT>=21)b.setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0,1,2));return b.build();}
+    private void updateNotification(){try{((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(41,notification());}catch(Exception ignored){}}
+    @Override public IBinder onBind(Intent i){return null;}
+    @Override public void onDestroy(){if(timerRunnable!=null)handler.removeCallbacks(timerRunnable);if(player!=null){player.release();player=null;}if(session!=null){session.setActive(false);session.release();}super.onDestroy();}
+}
