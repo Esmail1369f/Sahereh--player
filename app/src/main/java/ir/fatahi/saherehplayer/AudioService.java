@@ -3,6 +3,8 @@ package ir.fatahi.saherehplayer;
 import android.app.*;
 import android.content.*;
 import android.media.*;
+import android.media.audiofx.Equalizer;
+import android.media.audiofx.BassBoost;
 import android.media.session.*;
 import android.net.Uri;
 import android.os.*;
