@@ -74,7 +74,8 @@ document.head.appendChild(splashStyle);
 function playWelcomeMelody(){
  try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC();if(ctx.state==='suspended')ctx.resume();const notes=[523.25,659.25,783.99,659.25,587.33,659.25,523.25];notes.forEach((hz,i)=>{const start=ctx.currentTime+i*.32;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=hz;gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.045,start+.035);gain.gain.exponentialRampToValueAtTime(.0001,start+.29);osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+.31)});setTimeout(()=>ctx.close().catch(()=>{}),2800)}catch(e){}
 }
-$('enterPlayer').addEventListener('click',()=>{playWelcomeMelody();splash.style.opacity='0';splash.style.pointerEvents='none';setTimeout(()=>{splash.remove();splashStyle.remove()},680)});
+playWelcomeMelody();
+$('enterPlayer').addEventListener('click',()=>{splash.style.opacity='0';splash.style.pointerEvents='none';setTimeout(()=>{splash.remove();splashStyle.remove()},680)});
 
 
 if(localStorage.getItem('sp-crossfade')==='1'){$('crossfade').checked=true;bridge('crossfade',true)}if(localStorage.getItem('sp-resume-call')==='0'){$('resumeCall').checked=false;bridge('resumeCall',false)}if(localStorage.getItem('sp-headphones')==='0'){$('headphones').checked=false;bridge('headphones',false)}if(localStorage.getItem('sp-low-effects')==='0')$('lowEffects').checked=false;$('autoNext').checked=localStorage.getItem('sp-auto-next')!=='0';bridge('autoNext',$('autoNext').checked);$('autoNext').addEventListener('change',e=>localStorage.setItem('sp-auto-next',e.target.checked?'1':'0'));
