@@ -235,3 +235,34 @@ body.theme-paper .np-artwork{border-color:#5a74ce!important;box-shadow:0 0 0 5px
 body.theme-paper .np-art-ring{border-color:#ffffffaa;box-shadow:0 0 0 8px #8c74e510,0 0 0 18px #4287d10a}
 .page-enter{animation:pageReveal .36s cubic-bezier(.2,.75,.25,1) both}@keyframes pageReveal{from{opacity:0;transform:translateY(13px) scale(.992);filter:blur(2px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 .song-row,.setting-card,.playlist-tile{animation:softRise .32s ease both}@keyframes softRise{from{opacity:.55;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+/* Portrait-first layout: compact artwork and controls for phone screens */
+@media (orientation: portrait) {
+  html, body { min-height: 100%; }
+  body { min-height: 100dvh; }
+  .app-shell { width: 100%; max-width: 760px; margin-inline: auto; }
+  .now-playing { margin-top: 6px; margin-bottom: 18px; }
+  .np-artwork-wrap {
+    min-height: 0 !important;
+    padding: clamp(10px, 2.2dvh, 20px) 0 !important;
+  }
+  .np-artwork {
+    width: min(68vw, min(31dvh, 260px)) !important;
+    height: min(68vw, min(31dvh, 260px)) !important;
+  }
+  .np-controls {
+    gap: clamp(1px, 1vw, 7px);
+    margin: clamp(10px, 1.8dvh, 17px) 0 11px;
+  }
+  .np-play { width: 62px; height: 62px; flex: 0 0 62px; }
+  .now-playing #visualizer { height: clamp(24px, 4dvh, 40px); margin-top: 5px; }
+  main { padding-bottom: max(30px, env(safe-area-inset-bottom)); }
+}
+@media (orientation: portrait) and (max-height: 700px) {
+  .np-artwork { width: min(62vw, 25dvh, 210px) !important; height: min(62vw, 25dvh, 210px) !important; }
+  .np-artwork-wrap { padding: 7px 0 !important; }
+  .np-controls { margin-top: 8px; margin-bottom: 7px; }
+  .np-play { width: 54px; height: 54px; flex-basis: 54px; }
+  .now-playing #visualizer { height: 22px; }
+  .np-track-text h1 { font-size: 18px; }
+}
