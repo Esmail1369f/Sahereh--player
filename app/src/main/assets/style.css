@@ -8,3 +8,20 @@
 .song-row:active,.pill:active,.gold-btn:active{transform:scale(.985)}
 button,select,input{touch-action:manipulation}
 @media(max-width:420px){.app-shell{padding-left:10px;padding-right:10px}.bottom-nav{overflow-x:auto;justify-content:flex-start;gap:7px}.nav-item{min-width:57px;flex:1}.controls{gap:7px}.player-card{padding:13px}.section-heading h2{font-size:15px}.scan-line{align-items:flex-start}}
+
+input[type=text],input[type=number]{width:46%;min-width:100px;background:#11100d;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px;font:inherit}
+.quick-actions,.setting-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}
+.mini-btn.on,.pill.on{color:var(--gold2);background:#4b3b18}
+.song-row.current{border-color:var(--gold);box-shadow:0 0 14px #d8b45b16}
+.song-row button{padding:4px;font-size:18px}
+.sort-row{flex-wrap:wrap}
+.setting-card label select{max-width:55%}
+.setting-card input[type=range]{max-width:45%}
+.playlist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.playlist-tile{display:flex;flex-direction:column;gap:9px;align-items:center;background:#151410;border:1px solid var(--line);border-radius:17px;padding:18px;color:var(--gold2);font-size:24px}
+.playlist-tile b{font-size:12px}
+.playlist-tile.chosen{border-color:var(--gold);background:#292113}
+.artist-row{width:100%;color:var(--gold2);font:inherit;text-align:right}
+.low-effects .record.spinning{animation-duration:8s}
+.low-effects canvas{opacity:.25}
+@media(max-width:390px){.app-shell{padding-left:9px;padding-right:9px}.song-row{gap:4px;padding:7px}.song-row button{font-size:15px}.nav-item{min-width:43px;font-size:8px}.nav-item span{font-size:18px}.setting-card{padding:12px}}
