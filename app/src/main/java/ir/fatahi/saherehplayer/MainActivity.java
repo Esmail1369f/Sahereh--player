@@ -58,6 +58,10 @@ public class MainActivity extends Activity {
             Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_PLAY).putExtra("uri",uri).putExtra("title",title).putExtra("artist",artist);
             if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);
         }
+        @JavascriptInterface public void setQueue(String json,int index){Intent i=new Intent(MainActivity.this,MusicService.class).setAction("sp.QUEUE").putExtra("queue",json).putExtra("index",index);if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);}
+        @JavascriptInterface public int getPosition(){return MusicService.instance==null?0:MusicService.instance.currentPosition();}
+        @JavascriptInterface public int getDuration(){return MusicService.instance==null?0:MusicService.instance.currentDuration();}
+        @JavascriptInterface public boolean isPlaying(){return MusicService.instance!=null&&MusicService.instance.isPlaying();}
         @JavascriptInterface public void control(String action){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(action);if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);}
         @JavascriptInterface public void seekTo(int seconds){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_SEEK).putExtra("position",seconds*1000);startService(i);}
         @JavascriptInterface public void setVolume(float v){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_VOLUME).putExtra("volume",v);startService(i);}
