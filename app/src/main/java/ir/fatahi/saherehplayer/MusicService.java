@@ -6,10 +6,7 @@ import android.media.*;
 import android.media.session.*;
 import android.net.Uri;
 import android.os.*;
-import android.provider.Settings;
 import android.support.v4.media.session.*;
-import android.graphics.BitmapFactory;
-import java.util.*;
 
 public class MusicService extends Service {
     public static final String ACTION_PLAY="sp.PLAY", ACTION_TOGGLE="sp.TOGGLE", ACTION_NEXT="sp.NEXT", ACTION_PREV="sp.PREV", ACTION_STOP="sp.STOP", ACTION_SEEK="sp.SEEK", ACTION_VOLUME="sp.VOLUME", ACTION_TIMER="sp.TIMER";
