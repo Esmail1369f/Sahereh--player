@@ -1,0 +1,46 @@
+package ir.fatahi.saherehplayer;
+
+import android.app.*;
+import android.content.*;
+import android.media.*;
+import android.media.session.*;
+import android.net.Uri;
+import android.os.*;
+import java.util.*;
+
+public class AudioService extends Service {
+ public static final String CHANNEL="sahereh_music";
+ private MediaPlayer player; private MediaSession session;
+ private ArrayList<String> uris=new ArrayList<>(),titles=new ArrayList<>(),artists=new ArrayList<>();
+ private int index=0; private boolean shuffle=false,repeat=false,autoNext=true; private float volume=.8f;
+ private Equalizer equalizer; private BassBoost bass; private long sleepAt=0;
+ private final Handler handler=new Handler(Looper.getMainLooper());
+ public static String currentTitle="",currentArtist=""; public static int currentIndex=0,duration=0,position=0,count=0; public static boolean playing=false;
+ private final Runnable ticker=new Runnable(){public void run(){updateState();if(sleepAt>0&&System.currentTimeMillis()>=sleepAt){pauseMusic();sleepAt=0;}handler.postDelayed(this,1000);}};
+ @Override public void onCreate(){super.onCreate();createChannel();session=new MediaSession(this,"SaherehPlayer");session.setCallback(new MediaSession.Callback(){@Override public void onPlay(){resumeMusic();}@Override public void onPause(){pauseMusic();}@Override public void onSkipToNext(){next();}@Override public void onSkipToPrevious(){previous();}@Override public void onSeekTo(long p){seek((int)p);}});session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS|MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);session.setActive(true);handler.post(ticker);}
+ private void createChannel(){if(Build.VERSION.SDK_INT>=26){NotificationChannel c=new NotificationChannel(CHANNEL,"پخش موسیقی",NotificationManager.IMPORTANCE_LOW);c.setDescription("کنترل پخش ساهره پلیر");getSystemService(NotificationManager.class).createNotificationChannel(c);}}
+ @Override public int onStartCommand(Intent in,int flags,int id){if(in==null)return START_NOT_STICKY;String a=in.getAction();if(a==null)return START_STICKY;
+ switch(a){
+ case "QUEUE": ArrayList<String> u=in.getStringArrayListExtra("uris"),t=in.getStringArrayListExtra("titles"),ar=in.getStringArrayListExtra("artists");if(u!=null&&!u.isEmpty()){uris=u;titles=t==null?new ArrayList<>():t;artists=ar==null?new ArrayList<>():ar;playIndex(Math.max(0,Math.min(in.getIntExtra("index",0),uris.size()-1)));}break;
+ case "PLAY":resumeMusic();break;case "PAUSE":pauseMusic();break;case "NEXT":next();break;case "PREV":previous();break;case "SEEK":seek(in.getIntExtra("position",0));break;
+ case "VOLUME":volume=in.getFloatExtra("volume",.8f);applyVolume();break;case "SHUFFLE":shuffle=in.getBooleanExtra("value",false);break;case "REPEAT":repeat=in.getBooleanExtra("value",false);break;case "AUTO_NEXT":autoNext=in.getBooleanExtra("value",true);break;
+ case "SLEEP":sleepAt=in.getLongExtra("when",0);break;case "EQ":setEq(in.getIntExtra("band",0),in.getIntExtra("level",0));break;case "BASS":setBass(in.getIntExtra("level",0));break;
+ case "STOP":pauseMusic();stopForeground(true);stopSelf();return START_NOT_STICKY;
+ }return START_STICKY;}
+ private void playIndex(int i){if(uris.isEmpty())return;index=Math.max(0,Math.min(i,uris.size()-1));try{if(player!=null){player.release();player=null;}player=new MediaPlayer();player.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());player.setDataSource(this,Uri.parse(uris.get(index)));player.setOnPreparedListener(p->{applyVolume();p.start();try{if(equalizer!=null)equalizer.release();equalizer=new Equalizer(0,p.getAudioSessionId());equalizer.setEnabled(true);}catch(Exception ignored){}updateState();updateNotification();});player.setOnCompletionListener(p->{if(repeat){p.seekTo(0);p.start();}else if(autoNext)next();else{updateState();updateNotification();}});player.setOnErrorListener((p,w,e)->{updateState();return true;});player.prepareAsync();startForeground(1,notification());updateState();}catch(Exception e){updateState();}}
+ private void resumeMusic(){if(player==null){if(!uris.isEmpty())playIndex(index);return;}try{player.start();}catch(Exception ignored){}updateState();updateNotification();}
+ private void pauseMusic(){if(player!=null&&player.isPlaying())player.pause();updateState();updateNotification();}
+ private void next(){if(uris.isEmpty())return;int n=shuffle&&uris.size()>1?new Random().nextInt(uris.size()):index+1;if(n>=uris.size())n=0;playIndex(n);}
+ private void previous(){if(uris.isEmpty())return;if(player!=null&&player.getCurrentPosition()>3000){seek(0);return;}playIndex(index<=0?uris.size()-1:index-1);}
+ private void seek(int ms){try{if(player!=null)player.seekTo(Math.max(0,Math.min(ms,player.getDuration())));}catch(Exception ignored){}}
+ private void applyVolume(){if(player!=null)player.setVolume(volume,volume);}
+ private void setEq(int band,int level){try{if(equalizer!=null&&band>=0&&band<equalizer.getNumberOfBands()){short[] r=equalizer.getBandLevelRange();equalizer.setBandLevel((short)band,(short)Math.max(r[0],Math.min(r[1],level)));}}catch(Exception ignored){}}
+ private void setBass(int level){try{if(player!=null){if(bass==null||bass.getAudioSessionId()!=player.getAudioSessionId()){if(bass!=null)bass.release();bass=new BassBoost(0,player.getAudioSessionId());bass.setEnabled(true);}bass.setStrength((short)Math.max(0,Math.min(1000,level*10)));}}catch(Exception ignored){}}
+ private void updateState(){currentIndex=index;count=uris.size();currentTitle=index<titles.size()?titles.get(index):"";currentArtist=index<artists.size()?artists.get(index):"";try{playing=player!=null&&player.isPlaying();position=player==null?0:player.getCurrentPosition();duration=player==null?0:player.getDuration();}catch(Exception ignored){playing=false;}if(session!=null){long acts=PlaybackState.ACTION_PLAY|PlaybackState.ACTION_PAUSE|PlaybackState.ACTION_PLAY_PAUSE|PlaybackState.ACTION_SKIP_TO_NEXT|PlaybackState.ACTION_SKIP_TO_PREVIOUS|PlaybackState.ACTION_SEEK_TO;session.setPlaybackState(new PlaybackState.Builder().setActions(acts).setState(playing?PlaybackState.STATE_PLAYING:PlaybackState.STATE_PAUSED,position,1f).build());}}
+ private Notification notification(){Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);b.setContentTitle(currentTitle.isEmpty()?"ساهره پلیر":currentTitle).setContentText(currentArtist.isEmpty()?"پخش موسیقی":currentArtist).setSmallIcon(android.R.drawable.ic_media_play).setOngoing(playing).setOnlyAlertOnce(true).setVisibility(Notification.VISIBILITY_PUBLIC).setContentIntent(PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));b.addAction(action(android.R.drawable.ic_media_previous,"قبلی","PREV",1));b.addAction(action(playing?android.R.drawable.ic_media_pause:android.R.drawable.ic_media_play,playing?"مکث":"پخش",playing?"PAUSE":"PLAY",2));b.addAction(action(android.R.drawable.ic_media_next,"بعدی","NEXT",3));if(Build.VERSION.SDK_INT>=21)b.setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0,1,2));return b.build();}
+ private Notification.Action action(int icon,String label,String act,int req){PendingIntent pi=PendingIntent.getService(this,req,new Intent(this,AudioService.class).setAction(act),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);return new Notification.Action.Builder(icon,label,pi).build();}
+ private void updateNotification(){try{((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1,notification());}catch(Exception ignored){}}
+ @Override public void onTaskRemoved(Intent root){if(player==null||!player.isPlaying())stopSelf();}
+ @Override public void onDestroy(){handler.removeCallbacks(ticker);if(player!=null)player.release();if(equalizer!=null)equalizer.release();if(bass!=null)bass.release();if(session!=null){session.setActive(false);session.release();}super.onDestroy();}
+ @Override public IBinder onBind(Intent i){return null;}
+}
