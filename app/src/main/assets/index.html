@@ -5,7 +5,7 @@
 <main>
 <section id="home" class="page active">
 <div class="now-playing">
-  <div class="np-top"><button id="minimizePlayer" class="np-round" aria-label="رفتن به آهنگ‌ها">☷</button><div class="np-heading"><span>اکنون در حال پخش</span><small>از کتابخانه موسیقی شما</small></div><button id="lyricsPlayerBtn" class="np-round" aria-label="متن آهنگ">≡</button><button id="playerToolsBtn" class="np-round" aria-label="ابزارهای پخش">⚙</button><button id="npMore" class="np-round" aria-label="اطلاعات آهنگ">⋯</button></div>
+  <div class="np-top"><button id="minimizePlayer" class="np-round" aria-label="رفتن به آهنگ‌ها">☷</button><div class="np-heading"><span>اکنون در حال پخش</span><small>از کتابخانه موسیقی شما</small></div><button id="playerToolsBtn" class="np-round" aria-label="ابزارهای پخش">⚙</button><button id="npMore" class="np-round" aria-label="اطلاعات آهنگ">⋯</button></div>
   <div class="np-artwork-wrap"><div class="np-glow"></div><div class="np-artwork" id="record"><img id="trackArtwork" class="track-cover-image" src="logo.svg" alt="تصویر آهنگ"/><div class="np-art-ring"></div></div></div>
   <div class="np-track-row"><div class="np-track-text"><h1 id="heroTitle">هنوز آهنگی انتخاب نشده</h1><p id="heroArtist">برای شروع از گوشی آهنگ انتخاب کن</p></div><button id="favBtn" class="np-heart" aria-label="افزودن به موردعلاقه">♡</button></div>
   <div class="np-progress wave-progress"><canvas id="waveProgress" aria-label="موج پیشرفت آهنگ"></canvas><input id="seek" type="range" min="0" max="1000" value="0" aria-label="جابه‌جایی در آهنگ"><div class="np-times"><span id="elapsed">۰۰:۰۰</span><span id="duration">۰۰:۰۰</span></div></div>
@@ -19,7 +19,7 @@
 <section id="favorites" class="page"><h2>موردعلاقه‌ها</h2><div id="favList" class="song-list empty-state">هنوز آهنگ موردعلاقه‌ای نداری.</div></section>
 <section id="playlists" class="page"><h2>فهرست‌های پخش</h2><div class="playlist-grid"><button class="playlist-tile" data-list="شاد">☀️<b>شاد</b></button><button class="playlist-tile" data-list="غمگین">🌧️<b>غمگین</b></button><button class="playlist-tile" data-list="آرام">🌙<b>آرام</b></button></div><div id="playlistTracks" class="song-list empty-state">یک فهرست را انتخاب کن.</div></section>
 <section id="settings" class="page"><h2>تنظیمات ساهره پلیر</h2><div class="setting-card">
-<label>پوسته برنامه <select id="themeSelect"><option value="gold">مشکی و طلایی</option><option value="silver">مشکی و نقره‌ای</option><option value="copper">مشکی و مسی</option><option value="champagne">مشکی و شامپاینی</option></select></label>
+<label>پوسته برنامه <select id="themeSelect"><option value="gold">مشکی و طلایی</option><option value="silver">مشکی و نقره‌ای</option><option value="copper">مشکی و مسی</option><option value="champagne">مشکی و شامپاینی</option><option value="paper">سفید هنری با رنگ‌های متنوع</option></select></label>
 <label>زبان برنامه <select id="languageSelect"><option value="fa">فارسی</option><option value="en">English</option></select></label>
 <label>نمای آهنگ‌ها <select id="listView"><option value="compact">فهرست جمع‌وجور</option><option value="cards">کارت‌های بزرگ‌تر</option></select></label>
 <label class="check-row"><input id="autoNext" type="checkbox" checked> پخش خودکار آهنگ بعدی</label>
