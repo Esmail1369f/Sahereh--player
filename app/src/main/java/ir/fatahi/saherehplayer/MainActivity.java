@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
 import android.provider.MediaStore;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsContract.Document;
 import android.webkit.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
