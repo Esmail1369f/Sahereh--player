@@ -13,8 +13,8 @@ function persistMeta(){localStorage.setItem('sp-meta',JSON.stringify(metadata))}
 function currentTrack(){return tracks[current]||null}
 function titleOf(t){return metadata[t.uri]?.title||t.title||'بدون نام'}
 function artistOf(t){return metadata[t.uri]?.artist||t.artist||'ناشناس'}
-function setTheme(v){document.body.classList.remove('theme-blue','theme-purple');if(v!=='gold')document.body.classList.add('theme-'+v);$('themeSelect').value=v;localStorage.setItem('sp-theme',v)}
-$('themeBtn').onclick=()=>{const v=['gold','blue','purple'];setTheme(v[(v.indexOf(localStorage.getItem('sp-theme')||'gold')+1)%v.length])};
+function setTheme(v){document.body.classList.remove('theme-blue','theme-purple','theme-silver','theme-copper','theme-champagne');if(v!=='gold')document.body.classList.add('theme-'+v);$('themeSelect').value=v;localStorage.setItem('sp-theme',v)}
+$('themeBtn').onclick=()=>{const v=['gold','silver','copper','champagne'];setTheme(v[(v.indexOf(localStorage.getItem('sp-theme')||'gold')+1)%v.length])};
 $('themeSelect').onchange=e=>setTheme(e.target.value);setTheme(localStorage.getItem('sp-theme')||'gold');
 function scan(){ $('heroTitle').textContent='در حال جست‌وجوی آهنگ‌ها…';bridge('scan');setTimeout(()=>{if(!tracks.length)$('heroTitle').textContent='هنوز آهنگی پیدا نشده';},1800)}
 window.onNativeSongs=function(raw){try{const got=JSON.parse(raw);const byUri=new Map(tracks.map(t=>[t.uri,t]));got.forEach(t=>byUri.set(t.uri,{...byUri.get(t.uri),...t}));tracks=[...byUri.values()];render();if(tracks.length&&current<0){current=0;showTrack(tracks[0]);}if(!tracks.length){$('heroTitle').textContent='آهنگی پیدا نشد';$('heroArtist').textContent='مجوز دسترسی به موسیقی را بررسی کن';}}catch(e){console.log(e)}};
