@@ -1,6 +1,7 @@
 package ir.fatahi.saherehplayer;
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,13 +11,18 @@ import android.provider.MediaStore;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.webkit.*;
+import android.widget.EditText;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
  private WebView webView; private static final int PERM=711, PICK=712, FOLDER=713, NOTIF_PERM=714;
- @Override public void onCreate(Bundle state){super.onCreate(state);getWindow().setStatusBarColor(0xff090909);getWindow().setNavigationBarColor(0xff090909);webView=new WebView(this);webView.setBackgroundColor(0xff090909);WebSettings s=webView.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(true);s.setMediaPlaybackRequiresUserGesture(false);webView.addJavascriptInterface(new Bridge(),"NativePlayer");webView.setWebViewClient(new WebViewClient());setContentView(webView);webView.loadUrl("file:///android_asset/index.html");}
+ @Override public void onCreate(Bundle state){super.onCreate(state);getWindow().setStatusBarColor(0xff090909);getWindow().setNavigationBarColor(0xff090909);webView=new WebView(this);webView.setBackgroundColor(0xff090909);WebSettings s=webView.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(true);s.setMediaPlaybackRequiresUserGesture(false);webView.addJavascriptInterface(new Bridge(),"NativePlayer");webView.setWebViewClient(new WebViewClient());webView.setWebChromeClient(new WebChromeClient(){
+ @Override public boolean onJsAlert(WebView view,String url,String message,JsResult result){new AlertDialog.Builder(MainActivity.this).setMessage(message).setCancelable(false).setPositiveButton(android.R.string.ok,(d,w)->result.confirm()).setOnCancelListener(d->result.cancel()).show();return true;}
+ @Override public boolean onJsConfirm(WebView view,String url,String message,JsResult result){new AlertDialog.Builder(MainActivity.this).setMessage(message).setPositiveButton("تأیید",(d,w)->result.confirm()).setNegativeButton("لغو",(d,w)->result.cancel()).setOnCancelListener(d->result.cancel()).show();return true;}
+ @Override public boolean onJsPrompt(WebView view,String url,String message,String defaultValue,JsPromptResult result){EditText input=new EditText(MainActivity.this);input.setSingleLine(false);input.setText(defaultValue==null?"":defaultValue);new AlertDialog.Builder(MainActivity.this).setTitle(message).setView(input).setPositiveButton("ذخیره",(d,w)->result.confirm(input.getText().toString())).setNegativeButton("لغو",(d,w)->result.cancel()).setOnCancelListener(d->result.cancel()).show();return true;}
+});setContentView(webView);webView.loadUrl("file:///android_asset/index.html");}
  private boolean hasAudioPermission(){String p=Build.VERSION.SDK_INT>=33?Manifest.permission.READ_MEDIA_AUDIO:Manifest.permission.READ_EXTERNAL_STORAGE;return Build.VERSION.SDK_INT<23||checkSelfPermission(p)==PackageManager.PERMISSION_GRANTED;}
  private void requestAudioPermission(){if(!hasAudioPermission()){String p=Build.VERSION.SDK_INT>=33?Manifest.permission.READ_MEDIA_AUDIO:Manifest.permission.READ_EXTERNAL_STORAGE;if(Build.VERSION.SDK_INT>=33)requestPermissions(new String[]{p,Manifest.permission.POST_NOTIFICATIONS},PERM);else requestPermissions(new String[]{p},PERM);return;}if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},NOTIF_PERM);scanSongs();return;}scanSongs();}
  @Override public void onRequestPermissionsResult(int r,String[] p,int[] g){super.onRequestPermissionsResult(r,p,g);if(r==NOTIF_PERM)return;if(r==PERM&&g.length>0&&g[0]==PackageManager.PERMISSION_GRANTED){if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},NOTIF_PERM);scanSongs();}else if(r==PERM)sendSongs("[]");}
