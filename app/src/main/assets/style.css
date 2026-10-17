@@ -179,3 +179,25 @@ body.drawer-open{overflow:hidden}
 .toast-message.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
 body:has(.mini-player.shown) main{padding-bottom:95px}
 @media(max-width:420px){.np-top{gap:4px}.np-top .np-round{width:34px;height:34px;font-size:17px}.mini-player{left:7px;right:7px}.tools-sheet{padding-left:13px;padding-right:13px}}
+
+/* Per-track artwork and left-to-right animated waveform timeline */
+.np-artwork{isolation:isolate}
+.track-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(1.15) contrast(1.05);transition:opacity .25s,transform .5s}
+.np-cover-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,#09090922 0%,#09090942 55%,#090909d9 100%),radial-gradient(circle at center,#00000000 20%,#00000070 100%);pointer-events:none}
+.np-art-ring{z-index:2;pointer-events:none}
+.np-art-disc{z-index:3;background:repeating-radial-gradient(circle,#181715b8 0 2px,#080808a8 3px 5px,#2c291fb8 6px 7px);backdrop-filter:blur(1.5px)}
+.np-art-center{z-index:1}
+.np-art-label{z-index:4}
+.wave-progress{position:relative;direction:ltr;padding:3px 0 0}
+.wave-progress #waveProgress{position:absolute;top:0;left:0;width:100%;height:22px;margin:0;border:0;background:transparent;pointer-events:none}
+.wave-progress #seek{position:relative;z-index:2;width:100%;height:22px;margin:0;background:transparent;direction:ltr;appearance:none;-webkit-appearance:none;accent-color:transparent;cursor:pointer}
+.wave-progress #seek::-webkit-slider-runnable-track{height:22px;background:transparent}
+.wave-progress #seek::-moz-range-track{height:22px;background:transparent}
+.wave-progress #seek::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:#fff0b2;border:2px solid #c49a3d;box-shadow:0 0 10px #e5c46e; margin-top:5px}
+.wave-progress #seek::-moz-range-thumb{width:9px;height:9px;border-radius:50%;background:#fff0b2;border:2px solid #c49a3d;box-shadow:0 0 10px #e5c46e}
+.wave-progress .np-times{direction:ltr}
+.song-cover{position:relative;overflow:hidden;padding:0!important;border-radius:13px!important;background:#17130b!important}
+.song-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.song-cover span{position:absolute;inset:0;display:grid;place-items:center;color:#fff0b8;text-shadow:0 2px 8px #000;font-size:23px;background:linear-gradient(145deg,#0002,#0007)}
+.song-cover{border-color:#ad8a42!important;box-shadow:0 3px 10px #0008}
+.mini-disc{position:relative}.mini-disc img{transition:opacity .2s}
