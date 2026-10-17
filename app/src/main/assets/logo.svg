@@ -1,21 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs>
- <linearGradient id="gold" x1="70" y1="30" x2="430" y2="480" gradientUnits="userSpaceOnUse"><stop stop-color="#fff5c9"/><stop offset=".22" stop-color="#e7c979"/><stop offset=".5" stop-color="#a87828"/><stop offset=".76" stop-color="#f6df9c"/><stop offset="1" stop-color="#7d551d"/></linearGradient>
- <radialGradient id="bg" cx=".3" cy=".18" r=".9"><stop stop-color="#29251b"/><stop offset=".55" stop-color="#10100e"/><stop offset="1" stop-color="#030303"/></radialGradient>
- <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>
-<circle cx="256" cy="256" r="246" fill="url(#bg)" stroke="url(#gold)" stroke-width="8"/>
-<circle cx="256" cy="256" r="222" fill="none" stroke="url(#gold)" stroke-opacity=".38" stroke-width="2"/>
-<circle cx="256" cy="238" r="145" fill="#080808" stroke="url(#gold)" stroke-width="5"/>
-<circle cx="256" cy="238" r="126" fill="none" stroke="#d8b968" stroke-opacity=".26" stroke-width="2"/>
-<circle cx="256" cy="238" r="105" fill="none" stroke="#d8b968" stroke-opacity=".22" stroke-width="2"/>
-<circle cx="256" cy="238" r="81" fill="none" stroke="#d8b968" stroke-opacity=".19" stroke-width="2"/>
-<path d="M296 120c-47-4-81 20-91 57-8 28 5 48 28 59-36 4-58 28-60 60 19-17 40-24 64-18 33 8 64-8 75-35-20 10-40 6-50-7 30-9 48-31 47-59-1-22-5-39-13-57z" fill="url(#gold)" filter="url(#glow)"/>
-<path d="M182 155c-20 24-25 47-14 70m-2-53c-15 24-15 45-4 64m38-101c-9 16-12 29-9 44" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round"/>
-<path d="M330 276v-91l52-12v76" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-<ellipse cx="316" cy="279" rx="19" ry="13" transform="rotate(-20 316 279)" fill="url(#gold)"/>
-<ellipse cx="362" cy="262" rx="19" ry="13" transform="rotate(-20 362 262)" fill="url(#gold)"/>
-<path d="M158 407h196" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/>
-<text x="256" y="443" text-anchor="middle" font-family="sans-serif" font-size="25" font-weight="700" letter-spacing="7" fill="url(#gold)">SAHEREH</text>
-<text x="256" y="470" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="600" letter-spacing="8" fill="#e9d39c">PLAYER</text>
-</svg>
+<defs><linearGradient id="gold" x1="65" y1="45" x2="440" y2="470" gradientUnits="userSpaceOnUse"><stop stop-color="#fff4bd"/><stop offset=".28" stop-color="#e6bf62"/><stop offset=".58" stop-color="#a87524"/><stop offset=".82" stop-color="#f5d98a"/><stop offset="1" stop-color="#80551c"/></linearGradient><radialGradient id="bg" cx=".32" cy=".2" r=".95"><stop stop-color="#29251b"/><stop offset=".55" stop-color="#10100e"/><stop offset="1" stop-color="#030303"/></radialGradient><filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<circle cx="256" cy="256" r="245" fill="url(#bg)" stroke="url(#gold)" stroke-width="8"/><circle cx="256" cy="256" r="222" fill="none" stroke="#e4c16c" stroke-opacity=".26" stroke-width="2"/>
+<path d="M334 142c-24-21-55-32-88-32-76 0-138 62-138 138 0 76 62 138 138 138 50 0 94-27 118-67" fill="none" stroke="url(#gold)" stroke-width="22" stroke-linecap="round" filter="url(#softGlow)"/><path d="M320 165c-19-15-43-23-68-23-58 0-106 48-106 106 0 58 48 106 106 106 39 0 73-21 92-52" fill="none" stroke="#f9e5a7" stroke-opacity=".55" stroke-width="2"/>
+<path d="M170 254h35l19-48 32 100 26-69 17 17h43" fill="none" stroke="url(#gold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/><circle cx="256" cy="256" r="10" fill="#fff0b4"/>
+<path d="M162 407h188" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/><text x="256" y="441" text-anchor="middle" font-family="sans-serif" font-size="25" font-weight="800" letter-spacing="5" fill="url(#gold)">SAHEREH</text><text x="256" y="469" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" letter-spacing="5" fill="#e9d39c">PLAYER</text></svg>
