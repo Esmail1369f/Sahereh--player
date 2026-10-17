@@ -1,5 +1,4 @@
 package ir.fatahi.saherehplayer;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.*;
@@ -11,68 +10,32 @@ import android.provider.MediaStore;
 import android.webkit.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.ArrayList;
 
 public class MainActivity extends Activity {
-    private WebView webView;
-    private ValueCallback<Uri[]> filePathCallback;
-    private static final int FILE_CHOOSER_REQUEST = 711;
-    private static final int PERMISSION_REQUEST = 712;
-
-    @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        getWindow().setStatusBarColor(0xff090909);
-        getWindow().setNavigationBarColor(0xff090909);
-        webView = new WebView(this);
-        webView.setBackgroundColor(0xff090909);
-        WebSettings s=webView.getSettings(); s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true);
-        s.setAllowFileAccess(true); s.setMediaPlaybackRequiresUserGesture(false);
-        webView.addJavascriptInterface(new PlayerBridge(), "Sahereh");
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient(){
-            @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p){
-                if(filePathCallback!=null)filePathCallback.onReceiveValue(null);
-                filePathCallback=cb;
-                try { Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.addCategory(Intent.CATEGORY_OPENABLE); i.setType("audio/*"); i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true); startActivityForResult(i,FILE_CHOOSER_REQUEST); return true; }
-                catch(Exception e){filePathCallback=null;return false;}
-            }
-        });
-        setContentView(webView);
-        if(Build.VERSION.SDK_INT>=33) requestPermissions(new String[]{Manifest.permission.READ_MEDIA_AUDIO,Manifest.permission.POST_NOTIFICATIONS},PERMISSION_REQUEST);
-        else requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST);
-        webView.loadUrl("file:///android_asset/index.html");
-    }
-    private class PlayerBridge {
-        @JavascriptInterface public void scanMusic(){
-            runOnUiThread(()->{
-                if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO)!=PackageManager.PERMISSION_GRANTED){ requestPermissions(new String[]{Manifest.permission.READ_MEDIA_AUDIO},PERMISSION_REQUEST); return; }
-                if(Build.VERSION.SDK_INT<33 && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST);return;}
-                JSONArray arr=new JSONArray(); Uri collection=MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                String[] cols={MediaStore.Audio.Media._ID,MediaStore.Audio.Media.TITLE,MediaStore.Audio.Media.ARTIST,MediaStore.Audio.Media.DURATION,MediaStore.Audio.Media.SIZE};
-                try(Cursor c=getContentResolver().query(collection,cols,MediaStore.Audio.Media.IS_MUSIC+" != 0",null,MediaStore.Audio.Media.TITLE+" COLLATE NOCASE ASC")){
-                    if(c!=null)while(c.moveToNext()){JSONObject o=new JSONObject();long id=c.getLong(0);o.put("id",id);o.put("title",c.getString(1));o.put("artist",c.getString(2));o.put("duration",c.getLong(3));o.put("size",c.getLong(4));o.put("uri",Uri.withAppendedPath(collection,String.valueOf(id)).toString());arr.put(o);}
-                }catch(Exception ignored){}
-                String js="window.onNativeLibrary && window.onNativeLibrary("+arr.toString()+")"; webView.evaluateJavascript(js,null);
-            });
-        }
-        @JavascriptInterface public void play(String uri,String title,String artist){
-            Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_PLAY).putExtra("uri",uri).putExtra("title",title).putExtra("artist",artist);
-            if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);
-        }
-        @JavascriptInterface public void setQueue(String json,int index){Intent i=new Intent(MainActivity.this,MusicService.class).setAction("sp.QUEUE").putExtra("queue",json).putExtra("index",index);startService(i);}
-        @JavascriptInterface public void setBass(int value){Intent i=new Intent(MainActivity.this,MusicService.class).setAction("sp.BASS").putExtra("strength",value*10);startService(i);}
-        @JavascriptInterface public int getPosition(){return MusicService.instance==null?0:MusicService.instance.currentPosition();}
-        @JavascriptInterface public int getDuration(){return MusicService.instance==null?0:MusicService.instance.currentDuration();}
-        @JavascriptInterface public boolean isPlaying(){return MusicService.instance!=null&&MusicService.instance.isPlaying();}
-        @JavascriptInterface public String getCurrentUri(){return MusicService.instance==null?"":MusicService.instance.currentUri();}
-        @JavascriptInterface public String getCurrentTitle(){return MusicService.instance==null?"":MusicService.instance.currentTitle();}
-        @JavascriptInterface public String getCurrentArtist(){return MusicService.instance==null?"":MusicService.instance.currentArtist();}
-        @JavascriptInterface public void control(String action){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(action);startService(i);}
-        @JavascriptInterface public void seekTo(int seconds){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_SEEK).putExtra("position",seconds*1000);startService(i);}
-        @JavascriptInterface public void setVolume(float v){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_VOLUME).putExtra("volume",v);startService(i);}
-        @JavascriptInterface public void sleepTimer(int minutes){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_TIMER).putExtra("minutes",minutes);startService(i);}
-        @JavascriptInterface public void openFolder(){runOnUiThread(()->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,713);});}
-    }
-    @Override protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(req==FILE_CHOOSER_REQUEST&&filePathCallback!=null){Uri[] r=null;if(res==RESULT_OK&&data!=null){if(data.getClipData()!=null){int n=data.getClipData().getItemCount();r=new Uri[n];for(int i=0;i<n;i++)r[i]=data.getClipData().getItemAt(i).getUri();}else if(data.getData()!=null)r=new Uri[]{data.getData()};}filePathCallback.onReceiveValue(r);filePathCallback=null;}}
-    @Override public void onRequestPermissionsResult(int r,String[] p,int[] g){super.onRequestPermissionsResult(r,p,g);if(r==PERMISSION_REQUEST&&webView!=null&&g.length>0&&g[0]==PackageManager.PERMISSION_GRANTED)webView.evaluateJavascript("window.requestNativeLibrary && window.requestNativeLibrary()",null);}
-    @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
+ private WebView webView; private static final int PERM=711, PICK=712, FOLDER=713;
+ @Override public void onCreate(Bundle state){super.onCreate(state);getWindow().setStatusBarColor(0xff090909);getWindow().setNavigationBarColor(0xff090909);webView=new WebView(this);webView.setBackgroundColor(0xff090909);WebSettings s=webView.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(true);s.setMediaPlaybackRequiresUserGesture(false);webView.addJavascriptInterface(new Bridge(),"NativePlayer");webView.setWebViewClient(new WebViewClient());setContentView(webView);webView.loadUrl("file:///android_asset/index.html");}
+ private boolean hasAudioPermission(){String p=Build.VERSION.SDK_INT>=33?Manifest.permission.READ_MEDIA_AUDIO:Manifest.permission.READ_EXTERNAL_STORAGE;return Build.VERSION.SDK_INT<23||checkSelfPermission(p)==PackageManager.PERMISSION_GRANTED;}
+ private void requestAudioPermission(){if(hasAudioPermission())scanSongs();else{String p=Build.VERSION.SDK_INT>=33?Manifest.permission.READ_MEDIA_AUDIO:Manifest.permission.READ_EXTERNAL_STORAGE;requestPermissions(new String[]{p},PERM);}}
+ @Override public void onRequestPermissionsResult(int r,String[] p,int[] g){super.onRequestPermissionsResult(r,p,g);if(r==PERM&&g.length>0&&g[0]==PackageManager.PERMISSION_GRANTED)scanSongs();else sendSongs("[]");}
+ private void scanSongs(){try{JSONArray arr=new JSONArray();Uri collection=MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;String[] cols={MediaStore.Audio.Media._ID,MediaStore.Audio.Media.TITLE,MediaStore.Audio.Media.ARTIST,MediaStore.Audio.Media.DURATION,MediaStore.Audio.Media.SIZE};try(Cursor c=getContentResolver().query(collection,cols,MediaStore.Audio.Media.IS_MUSIC+" != 0",null,MediaStore.Audio.Media.TITLE+" COLLATE NOCASE ASC")){if(c!=null)while(c.moveToNext()){JSONObject o=new JSONObject();long id=c.getLong(0);o.put("uri",Uri.withAppendedPath(collection,String.valueOf(id)).toString());o.put("title",c.getString(1)==null?"بدون نام":c.getString(1));o.put("artist",c.getString(2)==null?"ناشناس":c.getString(2));o.put("duration",c.getLong(3));o.put("size",c.getLong(4));arr.put(o);}}sendSongs(arr.toString());}catch(Exception e){sendSongs("[]");}}
+ private void sendSongs(String json){if(webView!=null)webView.post(()->webView.evaluateJavascript("window.onNativeSongs && window.onNativeSongs("+JSONObject.quote(json)+")",null));}
+ private Intent service(String action){return new Intent(this,AudioService.class).setAction(action);}
+ private void startServiceSafe(Intent i){if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);}
+ public class Bridge {
+  @JavascriptInterface public void scan(){runOnUiThread(()->requestAudioPermission());}
+  @JavascriptInterface public void chooseFiles(){runOnUiThread(()->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("audio/*");i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);i.addCategory(Intent.CATEGORY_OPENABLE);i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);startActivityForResult(i,PICK);});}
+  @JavascriptInterface public void chooseFolder(){runOnUiThread(()->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);startActivityForResult(i,FOLDER);});}
+  @JavascriptInterface public void playQueue(String json,int index){try{JSONArray a=new JSONArray(json);ArrayList<String> u=new ArrayList<>(),t=new ArrayList<>(),ar=new ArrayList<>();for(int x=0;x<a.length();x++){JSONObject o=a.getJSONObject(x);u.add(o.getString("uri"));t.add(o.optString("title","بدون نام"));ar.add(o.optString("artist","ناشناس"));}if(!u.isEmpty()){Intent i=service("QUEUE");i.putStringArrayListExtra("uris",u);i.putStringArrayListExtra("titles",t);i.putStringArrayListExtra("artists",ar);i.putExtra("index",index);startServiceSafe(i);}}catch(Exception ignored){}}
+  @JavascriptInterface public void play(){startServiceSafe(service("PLAY"));}@JavascriptInterface public void pause(){startServiceSafe(service("PAUSE"));}@JavascriptInterface public void next(){startServiceSafe(service("NEXT"));}@JavascriptInterface public void previous(){startServiceSafe(service("PREV"));}
+  @JavascriptInterface public void seek(int ms){startServiceSafe(service("SEEK").putExtra("position",ms));}
+  @JavascriptInterface public void volume(float v){startServiceSafe(service("VOLUME").putExtra("volume",v));}
+  @JavascriptInterface public void shuffle(boolean v){startServiceSafe(service("SHUFFLE").putExtra("value",v));}@JavascriptInterface public void repeat(boolean v){startServiceSafe(service("REPEAT").putExtra("value",v));}@JavascriptInterface public void autoNext(boolean v){startServiceSafe(service("AUTO_NEXT").putExtra("value",v));}
+  @JavascriptInterface public void sleep(int mins){startServiceSafe(service("SLEEP").putExtra("when",mins<=0?0:System.currentTimeMillis()+mins*60000L));}
+  @JavascriptInterface public void eq(int band,int level){startServiceSafe(service("EQ").putExtra("band",band).putExtra("level",level));}@JavascriptInterface public void bass(int level){startServiceSafe(service("BASS").putExtra("level",level));}
+  @JavascriptInterface public String state(){try{JSONObject o=new JSONObject();o.put("title",AudioService.currentTitle);o.put("artist",AudioService.currentArtist);o.put("index",AudioService.currentIndex);o.put("count",AudioService.count);o.put("duration",AudioService.duration);o.put("position",AudioService.position);o.put("playing",AudioService.playing);return o.toString();}catch(Exception e){return "{}";}}
+ }
+ @Override protected void onActivityResult(int r,int res,Intent data){super.onActivityResult(r,res,data);if(res!=RESULT_OK||data==null)return;if(r==PICK){JSONArray arr=new JSONArray();try{if(data.getClipData()!=null){for(int x=0;x<data.getClipData().getItemCount();x++)addPicked(data.getClipData().getItemAt(x).getUri(),arr);}else if(data.getData()!=null)addPicked(data.getData(),arr);}catch(Exception ignored){}if(arr.length()>0)webView.post(()->webView.evaluateJavascript("window.onNativeSongs && window.onNativeSongs("+JSONObject.quote(arr.toString())+")",null));}else if(r==FOLDER){try{getContentResolver().takePersistableUriPermission(data.getData(),Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);android.widget.Toast.makeText(this,"دسترسی پوشه ذخیره شد؛ برای نمایش آهنگ‌ها اسکن دوباره را بزن.",android.widget.Toast.LENGTH_LONG).show();}catch(Exception ignored){}}}
+ private void addPicked(Uri uri,JSONArray arr){try{getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);JSONObject o=new JSONObject();o.put("uri",uri.toString());String name=uri.getLastPathSegment();if(name==null)name="آهنگ انتخابی";name=name.replaceAll("^.*:","").replaceAll("\\.[^.]+$","");o.put("title",name);o.put("artist","فایل محلی");o.put("duration",0);o.put("size",0);arr.put(o);}catch(Exception ignored){}}
+ @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
 }
