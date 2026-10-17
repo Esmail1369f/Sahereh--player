@@ -63,7 +63,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface public int getPosition(){return MusicService.instance==null?0:MusicService.instance.currentPosition();}
         @JavascriptInterface public int getDuration(){return MusicService.instance==null?0:MusicService.instance.currentDuration();}
         @JavascriptInterface public boolean isPlaying(){return MusicService.instance!=null&&MusicService.instance.isPlaying();}
-        @JavascriptInterface public void control(String action){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(action);if(Build.VERSION.SDK_INT>=26)startForegroundService(i);else startService(i);}
+        @JavascriptInterface public String getCurrentUri(){return MusicService.instance==null?"":MusicService.instance.currentUri();}
+        @JavascriptInterface public String getCurrentTitle(){return MusicService.instance==null?"":MusicService.instance.currentTitle();}
+        @JavascriptInterface public String getCurrentArtist(){return MusicService.instance==null?"":MusicService.instance.currentArtist();}
+        @JavascriptInterface public void control(String action){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(action);startService(i);}
         @JavascriptInterface public void seekTo(int seconds){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_SEEK).putExtra("position",seconds*1000);startService(i);}
         @JavascriptInterface public void setVolume(float v){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_VOLUME).putExtra("volume",v);startService(i);}
         @JavascriptInterface public void sleepTimer(int minutes){Intent i=new Intent(MainActivity.this,MusicService.class).setAction(MusicService.ACTION_TIMER).putExtra("minutes",minutes);startService(i);}
