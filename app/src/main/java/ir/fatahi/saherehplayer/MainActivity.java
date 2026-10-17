@@ -15,6 +15,10 @@ import android.widget.EditText;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends Activity {
  private WebView webView; private static final int PERM=711, PICK=712, FOLDER=713, NOTIF_PERM=714;
