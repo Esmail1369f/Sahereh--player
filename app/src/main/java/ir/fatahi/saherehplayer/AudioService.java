@@ -14,7 +14,7 @@ public class AudioService extends Service {
  public static final String CHANNEL="sahereh_music";
  private MediaPlayer player; private MediaSession session; private AudioManager audioManager; private AudioManager.OnAudioFocusChangeListener focusListener; private BroadcastReceiver noisyReceiver; private boolean resumeAfterFocus=false,resumeOnFocus=true,pauseOnNoisy=true,crossfade=false,transitionRunning=false;
  private ArrayList<String> uris=new ArrayList<>(),titles=new ArrayList<>(),artists=new ArrayList<>();
- private int index=0; private boolean shuffle=false,repeat=false,autoNext=true,stopAtEnd=false; private float volume=.8f;
+ private int index=0; private boolean shuffle=false,repeat=false,autoNext=true,stopAtEnd=false,crossfade=false,resumeOnFocus=true,pauseOnNoisy=true; private float volume=.8f; private long fadeInAt=0;
  private Equalizer equalizer; private BassBoost bass; private int bassSession=-1; private long sleepAt=0;
  private final Handler handler=new Handler(Looper.getMainLooper());
  public static String currentTitle="",currentArtist=""; public static int currentIndex=0,duration=0,position=0,count=0; public static boolean playing=false;
@@ -25,7 +25,7 @@ public class AudioService extends Service {
  switch(a){
  case "QUEUE": ArrayList<String> u=in.getStringArrayListExtra("uris"),t=in.getStringArrayListExtra("titles"),ar=in.getStringArrayListExtra("artists");if(u!=null&&!u.isEmpty()){uris=u;titles=t==null?new ArrayList<>():t;artists=ar==null?new ArrayList<>():ar;playIndex(Math.max(0,Math.min(in.getIntExtra("index",0),uris.size()-1)));}break;
  case "PLAY":resumeMusic();break;case "PAUSE":pauseMusic();break;case "NEXT":next();break;case "PREV":previous();break;case "SEEK":seek(in.getIntExtra("position",0));break;
- case "VOLUME":volume=in.getFloatExtra("volume",.8f);applyVolume();break;case "SHUFFLE":shuffle=in.getBooleanExtra("value",false);break;case "REPEAT":repeat=in.getBooleanExtra("value",false);break;case "AUTO_NEXT":autoNext=in.getBooleanExtra("value",true);break;case "CROSSFADE":crossfade=in.getBooleanExtra("value",false);break;case "RESUME_CALL":resumeOnFocus=in.getBooleanExtra("value",true);break;case "HEADPHONES":pauseOnNoisy=in.getBooleanExtra("value",true);break;
+ case "VOLUME":volume=in.getFloatExtra("volume",.8f);applyVolume();break;case "SHUFFLE":shuffle=in.getBooleanExtra("value",false);break;case "REPEAT":repeat=in.getBooleanExtra("value",false);break;case "AUTO_NEXT":autoNext=in.getBooleanExtra("value",true);break;case "CROSSFADE":crossfade=in.getBooleanExtra("value",false);break;case "RESUME_CALL":resumeOnFocus=in.getBooleanExtra("value",true);break;case "HEADPHONES":pauseOnNoisy=in.getBooleanExtra("value",true);break;case "CROSSFADE":crossfade=in.getBooleanExtra("value",false);break;case "RESUME_CALL":resumeOnFocus=in.getBooleanExtra("value",true);break;case "HEADPHONES":pauseOnNoisy=in.getBooleanExtra("value",true);break;
  case "SLEEP":sleepAt=in.getLongExtra("when",0);stopAtEnd=false;break;case "SLEEP_END":stopAtEnd=in.getBooleanExtra("value",true);sleepAt=0;break;case "EQ":setEq(in.getIntExtra("band",0),in.getIntExtra("level",0));break;case "BASS":setBass(in.getIntExtra("level",0));break;
  case "STOP":pauseMusic();stopForeground(true);stopSelf();return START_NOT_STICKY;
  }return START_STICKY;}
