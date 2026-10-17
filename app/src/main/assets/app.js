@@ -51,7 +51,7 @@ if($('minimizePlayer'))$('minimizePlayer').onclick=()=>showPage('songs');
 if($('playerToolsBtn'))$('playerToolsBtn').onclick=openTools;
 function openTools(){const s=$('toolsSheet'),o=$('toolsOverlay');s?.classList.add('open');o?.classList.add('open')}
 function closeTools(){const s=$('toolsSheet'),o=$('toolsOverlay');s?.classList.remove('open');o?.classList.remove('open')}
-$('toolsOverlay').onclick=closeTools;
+$('toolsOverlay').onclick=closeTools;$('toolsClose').onclick=closeTools;
 $('miniPlayer').onclick=e=>{if(e.target.closest('button'))return;showPage('home')};$('miniPlayBtn').onclick=e=>{e.stopPropagation();togglePlay();updateMiniPlayer()};$('miniNextBtn').onclick=e=>{e.stopPropagation();if(tracks.length)startTrack(shuffle?Math.floor(Math.random()*tracks.length):(current+1)%tracks.length)};
 $('lyricsPlayerBtn').onclick=()=>fetchLyrics();
 if($('npMore'))$('npMore').onclick=()=>{if(currentTrack())showPage('info')};
